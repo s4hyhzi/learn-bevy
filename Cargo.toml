@@ -10,6 +10,8 @@ bevy = { version = "0.12.1" }
 bevy_egui = "0.24"
 bevy_screen_diagnostics = "0.4"
 bevy_panorbit_camera = "0.10.0"
+bevy_toon_shader = "0.3"
+naga_oil = "0.12.0"
 
 [profile.wasm-release]
 inherits = "release"
