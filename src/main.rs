@@ -1,5 +1,4 @@
 //! A shader that uses the GLSL shading language.
-
 use bevy::{
     pbr::{MaterialPipeline, MaterialPipelineKey},
     prelude::*,
@@ -11,38 +10,84 @@ use bevy::{
         },
     },
 };
+use bevy_egui::{egui, EguiContexts, EguiPlugin};
+use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
+use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 
 fn main() {
     App::new()
-        .add_plugins((DefaultPlugins, MaterialPlugin::<CustomMaterial>::default()))
+        .add_plugins((
+            DefaultPlugins,
+            MaterialPlugin::<CustomMaterial>::default(),
+            EguiPlugin,
+        ))
+        .add_plugins(ScreenDiagnosticsPlugin::default())
+        .add_plugins(ScreenFrameDiagnosticsPlugin)
+        .add_plugins(PanOrbitCameraPlugin)
         .add_systems(Startup, setup)
+        .add_systems(Update, ui_example_system)
         .run();
+}
+
+fn ui_example_system(mut contexts: EguiContexts) {
+    egui::Window::new("cocos demo").show(contexts.ctx_mut(), |ui| {
+        ui.heading("NB: This is a demo");
+    });
 }
 
 /// set up a simple 3D scene
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<CustomMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
     // cube
-    commands.spawn(MaterialMeshBundle {
+    commands.spawn(PbrBundle {
         mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
-        transform: Transform::from_xyz(0.0, 0.5, 0.0),
-        material: materials.add(CustomMaterial {
-            color: Color::BLUE,
-            color_texture: Some(asset_server.load("branding/icon.png")),
+        transform: Transform::from_xyz(0.0, 1.5, 0.0),
+        material: materials.add(StandardMaterial {
+            base_color: Color::WHITE,
+            base_color_texture: Some(asset_server.load("branding/666.png")),
             alpha_mode: AlphaMode::Blend,
+            ..default()
         }),
         ..default()
     });
 
-    // camera
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+    // circular base
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(shape::Circle::new(4.0).into()),
+        material: materials.add(Color::WHITE.into()),
+        transform: Transform::from_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
         ..default()
     });
+    // cube
+    commands.spawn(PbrBundle {
+        mesh: meshes.add(Mesh::from(shape::Cube { size: 1.0 })),
+        material: materials.add(Color::rgb_u8(124, 144, 255).into()),
+        transform: Transform::from_xyz(0.0, 0.5, 0.0),
+        ..default()
+    });
+    // light
+    commands.spawn(PointLightBundle {
+        point_light: PointLight {
+            intensity: 1500.0,
+            shadows_enabled: true,
+            ..default()
+        },
+        transform: Transform::from_xyz(4.0, 8.0, 4.0),
+        ..default()
+    });
+
+    // camera
+    commands.spawn(
+        (Camera3dBundle {
+            transform: Transform::from_xyz(-2.0, 2.5, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
+            ..default()
+        },
+        PanOrbitCamera::default())
+    );
 }
 
 // This is the struct that will be passed to your shader

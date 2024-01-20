@@ -7,7 +7,9 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.12.1" }
-
+bevy_egui = "0.24"
+bevy_screen_diagnostics = "0.4"
+bevy_panorbit_camera = "0.10.0"
 
 [profile.wasm-release]
 inherits = "release"
