@@ -24,7 +24,6 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<CustomMaterial>>,
-    asset_server: Res<AssetServer>,
 ) {
     // cube
     commands.spawn(MaterialMeshBundle {
@@ -32,9 +31,18 @@ fn setup(
         transform: Transform::from_xyz(0.0, 0.5, 0.0),
         material: materials.add(CustomMaterial {
             color: Color::BLUE,
-            color_texture: Some(asset_server.load("branding/icon.png")),
             alpha_mode: AlphaMode::Blend,
         }),
+        ..default()
+    });
+
+    commands.spawn(PointLightBundle {
+        point_light: PointLight {
+            intensity: 9000.0,
+            range: 100.,
+            ..default()
+        },
+        transform: Transform::from_xyz(8.0, 16.0, 8.0),
         ..default()
     });
 
@@ -50,9 +58,6 @@ fn setup(
 pub struct CustomMaterial {
     #[uniform(0)]
     color: Color,
-    #[texture(1)]
-    #[sampler(2)]
-    color_texture: Option<Handle<Image>>,
     alpha_mode: AlphaMode,
 }
 
