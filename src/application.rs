@@ -4,7 +4,7 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
 };
 
-use zerocopy::{AsBytes, FromBytes};
+use zerocopy::AsBytes;
 
 use std::rc::Rc;
 use std::mem;
@@ -542,7 +542,7 @@ impl Application {
         Some(command_buf)
     }
 
-    fn update(&mut self, event: WindowEvent)
+    fn update(&mut self, _event: WindowEvent)
     {
     }
 
